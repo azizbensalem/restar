@@ -19,7 +19,10 @@ module.exports = (app) => {
   router.get("/:token", posts.findPosts);
   router.post(
     "/create/:token",
-    upload.fields([{ name: "photo", maxCount: 1 }, { name: "video" }]),
+    upload.fields([
+      { name: "photo", maxCount: 1 },
+      { name: "video", maxCount: 1 },
+    ]),
     posts.createPost
   );
   router.get("/mypost/:token", posts.myPosts);

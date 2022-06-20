@@ -3,9 +3,8 @@ const jwt_decode = require("jwt-decode");
 
 // add plat
 exports.create = (req, res) => {
-  // const authHeader = req.headers.authorization;
-  // const token = authHeader.split(' ')[1];
-  // var decoded = jwt_decode(token);
+  const token = req.params.token;
+  var decoded = jwt_decode(token);
 
   const plat = new Plat({
     titre: req.body.titre,
@@ -17,7 +16,7 @@ exports.create = (req, res) => {
     prix: req.body.prix,
     promotion: req.body.promotion,
     menu: req.body.menu,
-    // user: decoded.user_id,
+    createdBy: decoded.user_id,
   });
 
   plat
@@ -34,8 +33,7 @@ exports.create = (req, res) => {
 
 // get plat by plat id
 exports.findPlat = (req, res) => {
-  // const authHeader = req.headers.authorization;
-  // const token = authHeader.split(' ')[1];
+  // const token = req.params.token;
   // var decoded = jwt_decode(token);
 
   Plat.find({ _id: req.params.id /* , user: decoded.user_id */ })
@@ -49,15 +47,16 @@ exports.findPlat = (req, res) => {
 
 // get all plats
 exports.findAll = (req, res) => {
-  // const authHeader = req.headers.authorization;
-  // const token = authHeader.split(" ")[1];
+  // const token = req.params.token;
   // var decoded = jwt_decode(token);
 
   Plat.find({
     /* user: decoded.user_id */
   });
   var total = Plat.count();
-  Plat.find()
+  Plat.find({
+    /* user: decoded.user_id */
+  })
     .then((data) => {
       res.set("Access-Control-Expose-Headers", "X-Total-Count");
       res.set("X-Total-Count", total);
@@ -72,29 +71,30 @@ exports.findAll = (req, res) => {
 
 // update plat
 exports.update = (req, res) => {
-  // const authHeader = req.headers.authorization;
-  // const token = authHeader.split(" ")[1];
-  // var decoded = jwt_decode(token);
+  const id = req.params.id;
+  const token = req.params.token;
+  var decoded = jwt_decode(token);
 
   if (!req.body) {
     return res.status(400).send({
       message: "Data to update can not be empty!",
     });
   }
-  const id = req.params.id;
 
   Plat.findOneAndUpdate(
-    { _id: req.params.id /*, user: decoded.user_id */ },
+    { _id: req.params.id, createdBy: decoded.user_id },
     {
-      titre: req.body.titre,
-      image: req.body.image,
-      description: req.body.description,
-      video: req.body.video,
-      model3D: req.body.model3D,
-      allergAlim: req.body.allergAlim,
-      prix: req.body.prix,
-      promotion: req.body.promotion,
-      menu: req.body.menu,
+      $set: {
+        titre: req.body.titre,
+        image: req.body.image,
+        description: req.body.description,
+        video: req.body.video,
+        model3D: req.body.model3D,
+        allergAlim: req.body.allergAlim,
+        prix: req.body.prix,
+        promotion: req.body.promotion,
+        menu: req.body.menu,
+      },
     },
     { useFindAndModify: false }
   )
@@ -114,13 +114,11 @@ exports.update = (req, res) => {
 
 // delete plat
 exports.delete = (req, res) => {
-  const authHeader = req.headers.authorization;
-  const token = authHeader.split(" ")[1];
+  const id = req.params.id;
+  const token = req.params.token;
   var decoded = jwt_decode(token);
 
-  const id = req.params.id;
-
-  Plat.findOneAndRemove({ _id: req.params.id, user: decoded.user_id })
+  Plat.findOneAndRemove({ _id: req.params.id, createdBy: decoded.user_id })
     .then((data) => {
       if (!data) {
         res.status(404).send({
@@ -141,7 +139,7 @@ exports.delete = (req, res) => {
 
 // delete all plats
 exports.deleteAll = (req, res) => {
-  Plat.deleteMany({ user: decoded.user_id })
+  Plat.deleteMany({ createdBy: decoded.user_id })
     .then((data) => {
       res.send({
         message: `${data.deletedCount} plats were deleted successfully!`,
