@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const PlatSchema = new mongoose.Schema(
   {
-    titre: { type: String, required: true },
-    image: { type: String },
-    description: { type: String },
+    title: { type: String, required: true },
+    photo: { type: String },
+    body: { type: String },
     video: { type: String },
     model3D: { type: String },
     allergAlim: { type: String },
@@ -15,7 +15,7 @@ const PlatSchema = new mongoose.Schema(
       ref: "Menu",
     },
     isActive: Boolean,
-    createdBy: {
+    postedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },

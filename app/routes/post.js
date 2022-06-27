@@ -17,15 +17,21 @@ module.exports = (app) => {
 
   router.get("/all", posts.findAllPosts);
   router.get("/:token", posts.findPosts);
-  router.post(
-    "/create/:token",
-    upload.fields([
-      { name: "photo", maxCount: 1 },
-      { name: "video", maxCount: 1 },
-    ]),
-    posts.createPost
-  );
+  router.post("/create/:token", posts.createPost);
   router.get("/mypost/:token", posts.myPosts);
+  router.post(
+    "/update/:postId/:token",
+    upload.fields([
+      { name: "photo" },
+      // { name: "video", maxCount: 1 }
+    ]),
+    posts.updatePost
+  );
+  router.post(
+    "/update/video/:postId/:token",
+    upload.fields([{ name: "video", maxCount: 1 }]),
+    posts.updatePostVideo
+  );
   router.put("/like/:postId/:token", posts.like);
   router.put("/dislike/:postId/:token", posts.dislike);
   router.put("/comment/:postId/:token", posts.comment);

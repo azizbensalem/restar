@@ -7,16 +7,16 @@ exports.create = (req, res) => {
   var decoded = jwt_decode(token);
 
   const plat = new Plat({
-    titre: req.body.titre,
-    image: req.body.image,
-    description: req.body.description,
+    title: req.body.title,
+    photo: req.body.photo,
+    body: req.body.body,
     video: req.body.video,
     model3D: req.body.model3D,
     allergAlim: req.body.allergAlim,
     prix: req.body.prix,
     promotion: req.body.promotion,
     menu: req.body.menu,
-    createdBy: decoded.user_id,
+    postedBy: decoded.user_id,
   });
 
   plat
@@ -33,10 +33,7 @@ exports.create = (req, res) => {
 
 // get plat by plat id
 exports.findPlat = (req, res) => {
-  // const token = req.params.token;
-  // var decoded = jwt_decode(token);
-
-  Plat.find({ _id: req.params.id /* , user: decoded.user_id */ })
+  Plat.find({ _id: req.params.id })
     .then((data) => res.json(data))
     .catch((err) => {
       res.status(500).send({
@@ -47,16 +44,9 @@ exports.findPlat = (req, res) => {
 
 // get all plats
 exports.findAll = (req, res) => {
-  // const token = req.params.token;
-  // var decoded = jwt_decode(token);
-
-  Plat.find({
-    /* user: decoded.user_id */
-  });
+  Plat.find();
   var total = Plat.count();
-  Plat.find({
-    /* user: decoded.user_id */
-  })
+  Plat.find({})
     .then((data) => {
       res.set("Access-Control-Expose-Headers", "X-Total-Count");
       res.set("X-Total-Count", total);
@@ -82,12 +72,12 @@ exports.update = (req, res) => {
   }
 
   Plat.findOneAndUpdate(
-    { _id: req.params.id, createdBy: decoded.user_id },
+    { _id: req.params.id, postedBy: decoded.user_id },
     {
       $set: {
-        titre: req.body.titre,
-        image: req.body.image,
-        description: req.body.description,
+        title: req.body.title,
+        photo: req.body.photo,
+        body: req.body.body,
         video: req.body.video,
         model3D: req.body.model3D,
         allergAlim: req.body.allergAlim,
@@ -118,7 +108,7 @@ exports.delete = (req, res) => {
   const token = req.params.token;
   var decoded = jwt_decode(token);
 
-  Plat.findOneAndRemove({ _id: req.params.id, createdBy: decoded.user_id })
+  Plat.findOneAndRemove({ _id: req.params.id, postedBy: decoded.user_id })
     .then((data) => {
       if (!data) {
         res.status(404).send({
@@ -139,7 +129,10 @@ exports.delete = (req, res) => {
 
 // delete all plats
 exports.deleteAll = (req, res) => {
-  Plat.deleteMany({ createdBy: decoded.user_id })
+  const token = req.params.token;
+  var decoded = jwt_decode(token);
+
+  Plat.deleteMany({ postedBy: decoded.user_id })
     .then((data) => {
       res.send({
         message: `${data.deletedCount} plats were deleted successfully!`,
